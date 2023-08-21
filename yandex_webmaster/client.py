@@ -700,6 +700,83 @@ class YandexWebmaster(object):
         response = self._send_api_request('get', endpoint, params)
         return response
 
+    def query_analytics_list(
+            self,
+            host_id: str,
+            offset: Optional[int] = 0,
+            limit: Optional[int] = 20,
+            device_type_indicator: Optional[str] = 'ALL',
+            text_indicator: Optional[str] = 'QUERY',
+            region_ids: Optional[dict] = None,
+            text_filters: Optional[dict] = None,
+            statistic_filters: Optional[dict] = None,
+            sort_by_date: Optional[dict] = None,
+    ) -> dict:
+        """Get query analytics list
+        DOC: https://yandex.ru/dev/webmaster/doc/dg/reference/host-query-analytics.html
+        Args:
+            host_id (str): site id
+            offset (int): offset
+            limit (int): limit
+            device_type_indicator (str): device type indicator
+            text_indicator (str): text indicator
+            region_ids (dict): list of region ids
+            text_filters (dict): list of text filters
+            statistic_filters (dict): list of statistic filters
+            sort_by_date (dict): sorting information
+
+        Returns:
+             {
+        "count": 5175,
+        "text_indicator_to_statistics": [
+            {
+                "text_indicator": {
+                    "type": "URL",
+                    "value": "some text"
+                },
+                "statistics": [
+                    {
+                        "date": "2023-04-15",
+                        "field": "CLICKS",
+                        "value": 7.0
+                    },
+                    {
+                        "date": "2023-04-15",
+                        "field": "POSITION",
+                        "value": 4.0
+                    },
+                    {
+                        "date": "2023-04-15",
+                        "field": "IMPRESSIONS",
+                        "value": 8595.0
+                    },
+                    {
+                        "date": "2023-04-15",
+                        "field": "CTR",
+                        "value": 0.0
+                    },
+                ...
+        """
+        endpoint = f'user/{self.user_id}/hosts/{host_id}/query-analytics/list'
+        request_body = {
+            "offset": offset,
+            "limit": limit,
+            "device_type_indicator": device_type_indicator,
+            "text_indicator": text_indicator
+        }
+
+        if region_ids:
+            request_body['region_ids'] = region_ids
+        if text_filters:
+            request_body['filters']['text_filters'] = text_filters
+        if statistic_filters:
+            request_body['filters']['statistic_filters'] = statistic_filters
+        if sort_by_date:
+            request_body['request_body'] = sort_by_date
+
+        response = self._send_api_request('post', endpoint, request_body)
+        return response
+        
     def recrawl_url(self, host_id: str, url: str) -> dict:
         """recrawl url
         DOC: https://yandex.ru/dev/webmaster/doc/dg/reference/host-recrawl-post.html
